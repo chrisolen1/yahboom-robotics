@@ -10,9 +10,9 @@ class Yahboom():
             IN4 = 26,
             ENA = 16,
             ENB = 13,
-            FRONT_SERVO = 23
-            CAMERA_SERVO_H = 25
-            CAMERA_SERVO_v = 9
+            FRONT_SERVO = 23,
+            CAMERA_SERVO_H = 25,
+            CAMERA_SERVO_V = 9,
             DEFAULT_FREQ = 1000):
         
         self.IN1 = IN1
@@ -109,25 +109,34 @@ class Yahboom():
         pwm_CAMERA_SERVO_H = GPIO.PWM(self.CAMERA_SERVO_H, 50)
         pwm_CAMERA_SERVO_V = GPIO.PWM(self.CAMERA_SERVO_V, 50)
 
-    def rotate_servo(self, servo, angle):
+    def angle(self, servo, angle):
 
        assert angle >= 30 and angle <= 150, "angle must be between 30 and 150"
 
        if servo=="CAMERA_SERVO_V":
            pwm_CAMERA_SERVO_V.start(angle/12)
-           pwm_CAMERA_SERVO_V.stop()
 
        elif servo=="CAMERA_SERVO_H":
            pwm_CAMERA_SERVO_H.start(angle/12)
-           pwm_CAMERA_SERVO_H.stop()
 
-    def reset_servo(self):
-
-        pwm_CAMERA_SERVO_V.start(8)
-        pwm_CAMERA_SERVO_H.start(8)
-        pwm_CAMERA_SERVO_V.stop()
-        pwm_CAMERA_SERVO_H.stop()
+    def rotate_servo(self, servo, angle):
 
 
+    
+    def reset_servo(self, servo):
+        
+        if servo=="CAMERA_SERVO_V":
+            pwm_CAMERA_SERVO_V.start(7.5)
 
+        elif servo=="CAMERA_SERVO_H":
+            pwm_CAMERA_SERVO_H.start(7.5)
 
+    def stop_servo(self, servo):
+
+        if servo=="CAMERA_SERVO_V":
+            pwm_CAMERA_SERVO_V.stop()
+
+        elif servo=="CAMERA_SERVO_H":
+            pwm_CAMERA_SERVO_H.stop()
+
+    
