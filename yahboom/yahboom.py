@@ -119,10 +119,19 @@ class Yahboom():
        elif servo=="CAMERA_SERVO_H":
            pwm_CAMERA_SERVO_H.start(angle/12)
 
-    def rotate_servo(self, servo, angle):
+    def rotate_servo(self, servo, starting_angle, ending_angle):
 
+        assert starting_angle >= 30 and starting_angle <= 150, "starting angle must be between 30 and 150"
+        assert ending_angle >= 30 and ending_angle <= 150, "ending angle must be between 30 and 150"
 
-    
+        if servo=="CAMERA_SERVO_V":
+            pwm_CAMERA_SERVO_V.start(starting_angle/12)
+            for i in range(starting_angle/12, ending_angle/12, .1)
+
+        if servo=="CAMERA_SERVO_H":
+            pwm_CAMERA_SERVO_H.start(starting_angle/12)
+            for i in range(starting_angle/12, ending_angle/12, .1)
+
     def reset_servo(self, servo):
         
         if servo=="CAMERA_SERVO_V":
