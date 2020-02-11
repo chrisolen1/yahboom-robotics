@@ -119,6 +119,9 @@ class Yahboom():
        elif servo=="CAMERA_SERVO_H":
            pwm_CAMERA_SERVO_H.start(angle/12)
 
+       else:
+           print("invalid servo name")
+
     def rotate_servo(self, servo, starting_angle, ending_angle):
 
         assert starting_angle >= 30 and starting_angle <= 150, "starting angle must be between 30 and 150"
@@ -126,11 +129,16 @@ class Yahboom():
 
         if servo=="CAMERA_SERVO_V":
             pwm_CAMERA_SERVO_V.start(starting_angle/12)
-            for i in range(starting_angle/12, ending_angle/12, .1)
-
-        if servo=="CAMERA_SERVO_H":
+            for i in range(starting_angle/12, ending_angle/12, .1):
+                pwm_CAMERA_SERVO_V.ChangeDutyCycle(i)
+            
+        elif servo=="CAMERA_SERVO_H":
             pwm_CAMERA_SERVO_H.start(starting_angle/12)
-            for i in range(starting_angle/12, ending_angle/12, .1)
+            for i in range(starting_angle/12, ending_angle/12, .1):
+                pwm_CAMERA_SERVO_H.ChangeDutyCycle(i)
+
+        else:
+            print("invalid servo name")
 
     def reset_servo(self, servo):
         
@@ -140,6 +148,9 @@ class Yahboom():
         elif servo=="CAMERA_SERVO_H":
             pwm_CAMERA_SERVO_H.start(7.5)
 
+        else:
+            print("invalid servo name")
+
     def stop_servo(self, servo):
 
         if servo=="CAMERA_SERVO_V":
@@ -148,4 +159,7 @@ class Yahboom():
         elif servo=="CAMERA_SERVO_H":
             pwm_CAMERA_SERVO_H.stop()
 
-    
+        else:
+            print("invalid servo name")
+
+
