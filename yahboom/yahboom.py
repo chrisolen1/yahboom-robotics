@@ -31,8 +31,8 @@ class Yahboom():
         self.DEFAULT_FREQ = DEFAULT_FREQ
         self.WHEEL_DIAMETER = WHEEL_DIAMETER # in cm
         self.WHEEL_CIRCUMFERENCE = self.WHEEL_DIAMETER * math.pi
-        self.WHEEL_BASE_WIDTH = wheel_base_width # in cm
-        self.WHEEL_BASE_CIRCUMFERENCE = self.WHEEL_BASE_WIDTH * pi
+        self.WHEEL_BASE_WIDTH = WHEEL_BASE_WIDTH # in cm
+        self.WHEEL_BASE_CIRCUMFERENCE = self.WHEEL_BASE_WIDTH * math.pi
     
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
@@ -138,87 +138,6 @@ class Yahboom():
         pwm_MOTOR_LEFT_PWM.ChangeDutyCycle(left_percent)
         pwm_MOTOR_RIGHT_PWM.ChangeDutyCycle(right_percent)
     
-    def orbit(self):
-
-        def orbit(self, speed, degrees, radius_cm=0, blocking=True):
-        
-        """
-        Drive in a circle  
-        
-        :param int degrees: Degrees to steer. **360** for full rotation. Negative for left turn.
-        :param int radius_cm: Radius in `cm` of the circle to drive. Default is **0** (turn in place).
-        :param boolean blocking = True: Set it as a blocking or non-blocking method.
-
-        """
-        assert (degrees <= 0 and degrees >= -360) or (degrees >= 0 and degrees <= 360), "invalid value for degrees"
-
-        radius = radius_cm * 10
-
-        # the total distance to drive in mm
-        drive_distance = math.pi * abs(radius) * abs(degrees) / 180 # / 180 is shorter than radius * 2 / 360
-        
-        # the distance in mm to add to one motor and subtract from the other
-        drive_difference = ((self.WHEEL_BASE_CIRCUMFERENCE * 10 * degrees) / 360)
-        
-        # the number of degrees each wheel needs to turn on average to get the necessary distance 
-        distance_degrees = ((drive_distance / self.WHEEL_CIRCUMFERENCE) * 360)
-        
-        # the difference between motor travel in degrees
-        difference_degrees = ((drive_difference / self.WHEEL_CIRCUMFERENCE) * 360)
-        
-        # the distance each wheel needs to turn
-        left_target  = (distance_degrees + difference_degrees)
-        right_target = (distance_degrees - difference_degrees)
-        
-        # if it's a left turn
-        if degrees < 0:
-            MOTOR_FAST = self.pwm_MOTOR_RIGHT_PWM
-            MOTOR_SLOW = self.pwm_MOTOR_LEFT_PWM
-            fast_target = right_target
-            slow_target = left_target
-        
-        # if it's a right turn
-        else:
-            MOTOR_FAST = self.pwm_MOTOR_LEFT_PWM
-            MOTOR_SLOW = self.pwm_MOTOR_RIGHT_PWM
-            fast_target = left_target
-            slow_target = right_target
-        
-        # determine driving direction from the speed
-        #direction = 1
-        #speed_with_direction = speed
-        #if speed < 0:
-        #    direction = -1
-        #    speed_with_direction = -speed
-        
-        # calculate the motor speed for each motor
-        fast_speed = speed
-        slow_speed = abs((speed * slow_target) / fast_target)
-        
-        # set the motor speeds
-        self.set_motor_limits(MOTOR_FAST, dps = fast_speed)
-        self.set_motor_limits(MOTOR_SLOW, dps = slow_speed)
-        
-        # get the starting position of each motor
-        StartPositionLeft = self.get_motor_encoder(self.MOTOR_LEFT)
-        StartPositionRight = self.get_motor_encoder(self.MOTOR_RIGHT)
-        
-        # Set each motor target position
-        self.set_motor_position(self.MOTOR_LEFT, (StartPositionLeft + (left_target * direction)))
-        self.set_motor_position(self.MOTOR_RIGHT, (StartPositionRight + (right_target * direction)))
-        
-        if blocking:
-            while self.target_reached(
-                    StartPositionLeft + (left_target * direction),
-                    StartPositionRight + (right_target * direction)) is False:
-                time.sleep(0.1)
-        
-            # reset to original speed once done
-            # if non-blocking, then the user is responsible in resetting the speed
-            self.set_speed(speed)
-        
-        return
-    
     def stop(self):
         
         pwm_MOTOR_LEFT_PWM.ChangeDutyCycle(0)
@@ -248,6 +167,9 @@ class Yahboom():
        elif servo=="CAMERA_SERVO_H":
            pwm_CAMERA_SERVO_H.start(angle/12)
 
+       elif servo=="FRONT_SERVO":
+           pwm_FRONT_SERVO.start(angle/12)
+       
        else:
            print("invalid servo name")
 
@@ -269,6 +191,13 @@ class Yahboom():
             for i in range(len(seq)):
                 pwm_CAMERA_SERVO_H.ChangeDutyCycle(seq[i])
                 time.sleep(.5)
+        
+        elif servo=="FRONT_SERVO":
+            pwm_FRONT_SERVO.start(starting_angle/12)
+            for i in range(len(seq)):
+                pwm_FRONT_SERVO.ChangeDutyCycle(seq[i])
+                time.sleep(.5)
+        
         else:
             print("invalid servo name")
 
@@ -280,6 +209,9 @@ class Yahboom():
         elif servo=="CAMERA_SERVO_H":
             pwm_CAMERA_SERVO_H.start(8)
 
+        elif servo=="FRONT_SERVO":
+            pwm_FRONT_SERVO.start(7.5)
+        
         else:
             print("invalid servo name")
 
@@ -291,6 +223,9 @@ class Yahboom():
         elif servo=="CAMERA_SERVO_H":
             pwm_CAMERA_SERVO_H.stop()
 
+        elif servo=="FRONT_SERVO":
+            pwm_FRONT_SERVO.stop()
+        
         else:
             print("invalid servo name")
 
