@@ -75,6 +75,11 @@ class Yahboom():
 
     def right(self, speed=20):
         
+        """
+        General function for turning right.
+
+        """
+
         GPIO.output(self.MOTOR_LEFT_FORWARD, GPIO.HIGH)
         GPIO.output(self.MOTOR_LEFT_BACK, GPIO.LOW)
         GPIO.output(self.MOTOR_RIGHT_FORWARD, GPIO.HIGH)
@@ -84,6 +89,11 @@ class Yahboom():
 
     def left(self, speed=20):
         
+        """
+        General function for turning left. 
+
+        """
+
         GPIO.output(self.MOTOR_LEFT_FORWARD, GPIO.HIGH)
         GPIO.output(self.MOTOR_LEFT_BACK, GPIO.LOW)
         GPIO.output(self.MOTOR_RIGHT_FORWARD, GPIO.HIGH)
@@ -109,6 +119,18 @@ class Yahboom():
         pwm_MOTOR_LEFT_PWM.ChangeDutyCycle(speed)
         pwm_MOTOR_RIGHT_PWM.ChangeDutyCycle(speed)
 
+    def steer(self, left_percent, right_percent):
+        
+        assert left_percent <= 100 and left_percent >= 0, "value must be 0 <= x <= 100"
+        assert right_percent <= 100 and right_percent >= 0, "value must be 0 <= x <= 100"
+
+        GPIO.output(self.MOTOR_LEFT_FORWARD, GPIO.HIGH)
+        GPIO.output(self.MOTOR_LEFT_BACK, GPIO.LOW)
+        GPIO.output(self.MOTOR_RIGHT_FORWARD, GPIO.HIGH)
+        GPIO.output(self.MOTOR_RIGHT_BACK, GPIO.LOW)
+        pwm_MOTOR_LEFT_PWM.ChangeDutyCycle(left_percent)
+        pwm_MOTOR_RIGHT_PWM.ChangeDutyCycle(right_percent)
+    
     def stop(self):
         
         pwm_MOTOR_LEFT_PWM.ChangeDutyCycle(0)
