@@ -5,23 +5,23 @@ import numpy as np
 class Yahboom():
 
     def __init__(self,
-            IN1 = 20,
-            IN2 = 21,
-            IN3 = 19,
-            IN4 = 26,
-            ENA = 16,
-            ENB = 13,
+            MOTOR_LEFT_FORWARD = 20,
+            MOTOR_LEFT_BACK = 21,
+            MOTOR_RIGHT_FORWARD = 19,
+            MOTOR_RIGHT_BACK = 26,
+            MOTOR_LEFT_PWM = 16,
+            MOTOR_RIGHT_PWM = 13,
             FRONT_SERVO = 23,
             CAMERA_SERVO_H = 25,
             CAMERA_SERVO_V = 9,
             DEFAULT_FREQ = 1000):
         
-        self.IN1 = IN1
-        self.IN2 = IN2
-        self.IN3 = IN3
-        self.IN4 = IN4
-        self.ENA = ENA
-        self.ENB = ENB
+        self.MOTOR_LEFT_FORWARD = MOTOR_LEFT_FORWARD
+        self.MOTOR_LEFT_BACK = MOTOR_LEFT_BACK
+        self.MOTOR_RIGHT_FORWARD = MOTOR_RIGHT_FORWARD
+        self.MOTOR_RIGHT_BACK = MOTOR_RIGHT_BACK
+        self.MOTOR_LEFT_PWM = MOTOR_LEFT_PWM
+        self.MOTOR_RIGHT_PWM = MOTOR_RIGHT_PWM
         self.FRONT_SERVO = FRONT_SERVO
         self.CAMERA_SERVO_H = CAMERA_SERVO_H
         self.CAMERA_SERVO_V = CAMERA_SERVO_V
@@ -33,68 +33,86 @@ class Yahboom():
     def motor_init(self):
         
         GPIO.cleanup()
-        global pwm_ENA
-        global pwm_ENB
+        global pwm_MOTOR_LEFT_PWM
+        global pwm_MOTOR_RIGHT_PWM
         
-        GPIO.setup(self.ENA,GPIO.OUT,initial=GPIO.HIGH)
-        GPIO.setup(self.IN1,GPIO.OUT,initial=GPIO.LOW)
-        GPIO.setup(self.IN2,GPIO.OUT,initial=GPIO.LOW)
-        GPIO.setup(self.ENB,GPIO.OUT,initial=GPIO.HIGH)
-        GPIO.setup(self.IN3,GPIO.OUT,initial=GPIO.LOW)
-        GPIO.setup(self.IN4,GPIO.OUT,initial=GPIO.LOW)
+        GPIO.setup(self.MOTOR_LEFT_PWM,GPIO.OUT,initial=GPIO.LOW)
+        GPIO.setup(self.MOTOR_LEFT_FORWARD,GPIO.OUT,initial=GPIO.LOW)
+        GPIO.setup(self.MOTOR_LEFT_BACK,GPIO.OUT,initial=GPIO.LOW)
+        GPIO.setup(self.MOTOR_RIGHT_PWM,GPIO.OUT,initial=GPIO.LOW)
+        GPIO.setup(self.MOTOR_RIGHT_FORWARD,GPIO.OUT,initial=GPIO.LOW)
+        GPIO.setup(self.MOTOR_RIGHT_BACK,GPIO.OUT,initial=GPIO.LOW)
     
         #Set the PWM pin and frequency
-        pwm_ENA = GPIO.PWM(self.ENA, self.DEFAULT_FREQ)
-        pwm_ENB = GPIO.PWM(self.ENB, self.DEFAULT_FREQ)
-        pwm_ENA.start(0)
-        pwm_ENB.start(0)
+        pwm_MOTOR_LEFT_PWM = GPIO.PWM(self.MOTOR_LEFT_PWM, self.DEFAULT_FREQ)
+        pwm_MOTOR_RIGHT_PWM = GPIO.PWM(self.MOTOR_RIGHT_PWM, self.DEFAULT_FREQ)
+        pwm_MOTOR_LEFT_PWM.start(0)
+        pwm_MOTOR_RIGHT_PWM.start(0)
 
     def motor_reinit(self):
         
-        pwm_ENA.stop()
-        pwm_ENB.stop()
+        pwm_MOTOR_LEFT_PWM.stop()
+        pwm_MOTOR_RIGHT_PWM.stop()
         self.motor_init()
 
     def forward(self, speed=20):
         
-        GPIO.output(self.IN1, GPIO.HIGH)
-        GPIO.output(self.IN2, GPIO.LOW)
-        GPIO.output(self.IN3, GPIO.HIGH)
-        GPIO.output(self.IN4, GPIO.LOW)
-        pwm_ENA.ChangeDutyCycle(speed)
-        pwm_ENB.ChangeDutyCycle(speed)
+        GPIO.output(self.MOTOR_LEFT_FORWARD, GPIO.HIGH)
+        GPIO.output(self.MOTOR_LEFT_BACK, GPIO.LOW)
+        GPIO.output(self.MOTOR_RIGHT_FORWARD, GPIO.HIGH)
+        GPIO.output(self.MOTOR_RIGHT_BACK, GPIO.LOW)
+        pwm_MOTOR_LEFT_PWM.ChangeDutyCycle(speed)
+        pwm_MOTOR_RIGHT_PWM.ChangeDutyCycle(speed)
 
     def backward(self, speed=20):
 
-        GPIO.output(self.IN1, GPIO.LOW)
-        GPIO.output(self.IN2, GPIO.HIGH)
-        GPIO.output(self.IN3, GPIO.LOW)
-        GPIO.output(self.IN4, GPIO.HIGH)
-        pwm_ENA.ChangeDutyCycle(speed)
-        pwm_ENB.ChangeDutyCycle(speed)
+        GPIO.output(self.MOTOR_LEFT_FORWARD, GPIO.LOW)
+        GPIO.output(self.MOTOR_LEFT_BACK, GPIO.HIGH)
+        GPIO.output(self.MOTOR_RIGHT_FORWARD, GPIO.LOW)
+        GPIO.output(self.MOTOR_RIGHT_BACK, GPIO.HIGH)
+        pwm_MOTOR_LEFT_PWM.ChangeDutyCycle(speed)
+        pwm_MOTOR_RIGHT_PWM.ChangeDutyCycle(speed)
 
     def right(self, speed=20):
         
-        GPIO.output(self.IN1, GPIO.HIGH)
-        GPIO.output(self.IN2, GPIO.LOW)
-        GPIO.output(self.IN3, GPIO.LOW)
-        GPIO.output(self.IN4, GPIO.LOW)
-        pwm_ENA.ChangeDutyCycle(speed)
-        pwm_ENB.ChangeDutyCycle(speed)
+        GPIO.output(self.MOTOR_LEFT_FORWARD, GPIO.HIGH)
+        GPIO.output(self.MOTOR_LEFT_BACK, GPIO.LOW)
+        GPIO.output(self.MOTOR_RIGHT_FORWARD, GPIO.HIGH)
+        GPIO.output(self.MOTOR_RIGHT_BACK, GPIO.LOW)
+        pwm_MOTOR_LEFT_PWM.ChangeDutyCycle(speed)
+        pwm_MOTOR_RIGHT_PWM.ChangeDutyCycle(speed/3)
 
     def left(self, speed=20):
         
-        GPIO.output(self.IN1, GPIO.LOW)
-        GPIO.output(self.IN2, GPIO.LOW)
-        GPIO.output(self.IN3, GPIO.HIGH)
-        GPIO.output(self.IN4, GPIO.LOW)
-        pwm_ENA.ChangeDutyCycle(speed)
-        pwm_ENB.ChangeDutyCycle(speed)
+        GPIO.output(self.MOTOR_LEFT_FORWARD, GPIO.HIGH)
+        GPIO.output(self.MOTOR_LEFT_BACK, GPIO.LOW)
+        GPIO.output(self.MOTOR_RIGHT_FORWARD, GPIO.HIGH)
+        GPIO.output(self.MOTOR_RIGHT_BACK, GPIO.LOW)
+        pwm_MOTOR_LEFT_PWM.ChangeDutyCycle(speed/3)
+        pwm_MOTOR_RIGHT_PWM.ChangeDutyCycle(speed)
     
+    def spin_right(self, speed=20):
+
+        GPIO.output(self.MOTOR_LEFT_FORWARD, GPIO.HIGH)
+        GPIO.output(self.MOTOR_LEFT_BACK, GPIO.LOW)
+        GPIO.output(self.MOTOR_RIGHT_FORWARD, GPIO.LOW)
+        GPIO.output(self.MOTOR_RIGHT_BACK, GPIO.LOW)
+        pwm_MOTOR_LEFT_PWM.ChangeDutyCycle(speed)
+        pwm_MOTOR_RIGHT_PWM.ChangeDutyCycle(speed)
+
+    def spin_left(self, speed=20):
+
+        GPIO.output(self.MOTOR_LEFT_FORWARD, GPIO.LOW)
+        GPIO.output(self.MOTOR_LEFT_BACK, GPIO.LOW)
+        GPIO.output(self.MOTOR_RIGHT_FORWARD, GPIO.HIGH)
+        GPIO.output(self.MOTOR_RIGHT_BACK, GPIO.LOW)
+        pwm_MOTOR_LEFT_PWM.ChangeDutyCycle(speed)
+        pwm_MOTOR_RIGHT_PWM.ChangeDutyCycle(speed)
+
     def stop(self):
         
-        pwm_ENA.ChangeDutyCycle(0)
-        pwm_ENB.ChangeDutyCycle(0)
+        pwm_MOTOR_LEFT_PWM.ChangeDutyCycle(0)
+        pwm_MOTOR_RIGHT_PWM.ChangeDutyCycle(0)
 
     def servo_init(self):
 
