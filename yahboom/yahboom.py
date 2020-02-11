@@ -1,5 +1,6 @@
 import RPi.GPIO as GPIO
 import time
+import numpy as np
 
 class Yahboom():
 
@@ -111,7 +112,7 @@ class Yahboom():
 
     def angle(self, servo, angle):
 
-       assert angle >= 30 and angle <= 150, "angle must be between 30 and 150"
+       assert angle >= 60 and angle <= 120, "angle must be between 60 and 120"
 
        if servo=="CAMERA_SERVO_V":
            pwm_CAMERA_SERVO_V.start(angle/12)
@@ -124,19 +125,22 @@ class Yahboom():
 
     def rotate_servo(self, servo, starting_angle, ending_angle):
 
-        assert starting_angle >= 30 and starting_angle <= 150, "starting angle must be between 30 and 150"
-        assert ending_angle >= 30 and ending_angle <= 150, "ending angle must be between 30 and 150"
+        assert starting_angle >= 60 and starting_angle <= 120, "starting angle must be between 60 and 120"
+        assert ending_angle >= 60 and ending_angle <= 120, "ending angle must be between 60 and 120"
 
+        seq = np.arange(starting_angle/12, ending_angle/12 + .1, .1)
+        
         if servo=="CAMERA_SERVO_V":
             pwm_CAMERA_SERVO_V.start(starting_angle/12)
-            for i in range(starting_angle/12, ending_angle/12, .1):
-                pwm_CAMERA_SERVO_V.ChangeDutyCycle(i)
+            for i in range(len(seq)):
+                pwm_CAMERA_SERVO_V.ChangeDutyCycle(seq[i])
+                time.sleep(.5)
             
         elif servo=="CAMERA_SERVO_H":
             pwm_CAMERA_SERVO_H.start(starting_angle/12)
-            for i in range(starting_angle/12, ending_angle/12, .1):
-                pwm_CAMERA_SERVO_H.ChangeDutyCycle(i)
-
+            for i in range(len(seq)):
+                pwm_CAMERA_SERVO_H.ChangeDutyCycle(seq[i])
+                time.sleep(.5)
         else:
             print("invalid servo name")
 
@@ -146,7 +150,7 @@ class Yahboom():
             pwm_CAMERA_SERVO_V.start(7.5)
 
         elif servo=="CAMERA_SERVO_H":
-            pwm_CAMERA_SERVO_H.start(7.5)
+            pwm_CAMERA_SERVO_H.start(8)
 
         else:
             print("invalid servo name")
