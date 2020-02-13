@@ -19,8 +19,10 @@ class Yahboom():
             WHEEL_DIAMETER = 6.65,
             WHEEL_BASE_WIDTH = 16,
             ULTRASONIC_ECHOPIN = 0,
-            ULTRASONIC_TRIGGERPIN = 1):
-        
+            ULTRASONIC_TRIGGERPIN = 1,
+            INFRARED_LEFT = 12,
+            INFRARED_RIGHT = 17):
+
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
 
@@ -44,6 +46,9 @@ class Yahboom():
     
         self.ULTRASONIC_ECHOPIN = ULTRASONIC_ECHOPIN
         self.ULTRASONIC_TRIGGERPIN = ULTRASONIC_TRIGGERPIN
+
+        self.INFRARED_LEFT = INFRARED_LEFT
+        self.INFRARED_RIGHT = INFRARED_RIGHT
 
     def init_motor(self):
         
@@ -133,6 +138,25 @@ class Yahboom():
         GPIO.output(self.MOTOR_RIGHT_BACK, GPIO.LOW)
         pwm_MOTOR_LEFT_PWM.ChangeDutyCycle(speed)
         pwm_MOTOR_RIGHT_PWM.ChangeDutyCycle(speed)
+
+    def back_right(self, speed=15):
+
+        GPIO.output(self.MOTOR_LEFT_FORWARD, GPIO.LOW)
+        GPIO.output(self.MOTOR_LEFT_BACK, GPIO.HIGH)
+        GPIO.output(self.MOTOR_RIGHT_FORWARD, GPIO.LOW)
+        GPIO.output(self.MOTOR_RIGHT_BACK, GPIO.HIGH)
+        pwm_MOTOR_LEFT_PWM.ChangeDutyCycle(speed)
+        pwm_MOTOR_RIGHT_PWM.ChangeDutyCycle(speed/3)
+
+    def back_left(self, speed=15):
+
+        GPIO.output(self.MOTOR_LEFT_FORWARD, GPIO.LOW)
+        GPIO.output(self.MOTOR_LEFT_BACK, GPIO.HIGH)
+        GPIO.output(self.MOTOR_RIGHT_FORWARD, GPIO.LOW)
+        GPIO.output(self.MOTOR_RIGHT_BACK, GPIO.HIGH)
+        pwm_MOTOR_LEFT_PWM.ChangeDutyCycle(speed/3)
+        pwm_MOTOR_RIGHT_PWM.ChangeDutyCycle(speed)
+
 
     def steer(self, left_percent, right_percent):
         
@@ -268,6 +292,14 @@ class Yahboom():
 
         return distance
 
+    def init_infrared_sensor(self):
 
+        GPIO.setup(self.INFRARED_LEFT,GPIO.IN)
+        GPIO.setup(self.INFRARED_RIGHT,GPIO.IN)
+    
+    def InfraredSensor(self):
 
+        LeftSensorValue = GPIO.input(self.INFRARED_LEFT)
+        RightSensorValue = GPIO.input(self.INFRARED_RIGHT)
 
+        return LeftSensorValue, RightSensorValue
