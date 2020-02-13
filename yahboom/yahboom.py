@@ -17,27 +17,35 @@ class Yahboom():
             CAMERA_SERVO_V = 9,
             DEFAULT_FREQ = 1000,
             WHEEL_DIAMETER = 6.65,
-            WHEEL_BASE_WIDTH = 16):
+            WHEEL_BASE_WIDTH = 16,
+            ULTRASONIC_ECHOPIN = 0,
+            ULTRASONIC_TRIGGERPIN = 1):
         
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setwarnings(False)
+
         self.MOTOR_LEFT_FORWARD = MOTOR_LEFT_FORWARD
         self.MOTOR_LEFT_BACK = MOTOR_LEFT_BACK
         self.MOTOR_RIGHT_FORWARD = MOTOR_RIGHT_FORWARD
         self.MOTOR_RIGHT_BACK = MOTOR_RIGHT_BACK
         self.MOTOR_LEFT_PWM = MOTOR_LEFT_PWM
         self.MOTOR_RIGHT_PWM = MOTOR_RIGHT_PWM
+        
         self.FRONT_SERVO = FRONT_SERVO
         self.CAMERA_SERVO_H = CAMERA_SERVO_H
         self.CAMERA_SERVO_V = CAMERA_SERVO_V
+        
         self.DEFAULT_FREQ = DEFAULT_FREQ
+        
         self.WHEEL_DIAMETER = WHEEL_DIAMETER # in cm
         self.WHEEL_CIRCUMFERENCE = self.WHEEL_DIAMETER * math.pi
         self.WHEEL_BASE_WIDTH = WHEEL_BASE_WIDTH # in cm
         self.WHEEL_BASE_CIRCUMFERENCE = self.WHEEL_BASE_WIDTH * math.pi
     
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setwarnings(False)
+        self.ULTRASONIC_ECHOPIN = ULTRASONIC_ECHOPIN
+        self.ULTRASONIC_TRIGGERPIN = ULTRASONIC_TRIGGERPIN
 
-    def motor_init(self):
+    def init_motor(self):
         
         GPIO.cleanup()
         global pwm_MOTOR_LEFT_PWM
@@ -143,7 +151,7 @@ class Yahboom():
         pwm_MOTOR_LEFT_PWM.ChangeDutyCycle(0)
         pwm_MOTOR_RIGHT_PWM.ChangeDutyCycle(0)
 
-    def servo_init(self):
+    def init_servo(self):
 
         global pwm_FRONT_SERVO
         global pwm_CAMERA_SERVO_H
@@ -228,5 +236,38 @@ class Yahboom():
         
         else:
             print("invalid servo name")
+                    
+    def init_distance_sensor(self):
+
+        GPIO.setup(self.ULTRASONIC_ECHOPIN,GPIO.IN)
+        GPIO.setup(self.ULTRASONIC_TRIGGERPIN,GPIO.OUT)
+   
+    def UltraSonicSensor(self):
+
+        GPIO.output(self.ULTRASONIC_TRIGGERPIN, GPIO.LOW)
+        print("Waiting for sensor to settle")
+        time.sleep(1)
+
+        print("Calculating distance")
+
+        # set trigger after 0.01ms from HIGH to LOW
+        GPIO.output(self.ULTRASONIC_TRIGGERPIN, GPIO.HIGH)
+        time.sleep(0.00001)
+        GPIO.output(self.ULTRASONIC_TRIGGERPIN, GPIO.LOW)
+
+        # save StartTime
+        while GPIO.input(self.ULTRASONIC_ECHOPIN) == 0:
+            StartTime = time.time()
+
+        while GPIO.input(self.ULTRASONIC_ECHOPIN) == 1:
+            StopTime = time.time()
+
+        TimeElapsed = StopTime - StartTime
+
+        distance = (TimeElapsed * 34300) / 2
+
+        return distance
+
+
 
 
