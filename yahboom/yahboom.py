@@ -139,7 +139,7 @@ class Yahboom():
         pwm_MOTOR_LEFT_PWM.ChangeDutyCycle(speed)
         pwm_MOTOR_RIGHT_PWM.ChangeDutyCycle(speed)
 
-    def back_right(self, speed=15):
+    def back_left(self, speed=15):
 
         GPIO.output(self.MOTOR_LEFT_FORWARD, GPIO.LOW)
         GPIO.output(self.MOTOR_LEFT_BACK, GPIO.HIGH)
@@ -147,8 +147,8 @@ class Yahboom():
         GPIO.output(self.MOTOR_RIGHT_BACK, GPIO.HIGH)
         pwm_MOTOR_LEFT_PWM.ChangeDutyCycle(speed)
         pwm_MOTOR_RIGHT_PWM.ChangeDutyCycle(speed/3)
-
-    def back_left(self, speed=15):
+    
+    def back_right(self, speed=15):
 
         GPIO.output(self.MOTOR_LEFT_FORWARD, GPIO.LOW)
         GPIO.output(self.MOTOR_LEFT_BACK, GPIO.HIGH)
@@ -157,6 +157,23 @@ class Yahboom():
         pwm_MOTOR_LEFT_PWM.ChangeDutyCycle(speed/3)
         pwm_MOTOR_RIGHT_PWM.ChangeDutyCycle(speed)
 
+    def back_spin_left(self, speed=15):
+
+        GPIO.output(self.MOTOR_LEFT_FORWARD, GPIO.LOW)
+        GPIO.output(self.MOTOR_LEFT_BACK, GPIO.HIGH)
+        GPIO.output(self.MOTOR_RIGHT_FORWARD, GPIO.LOW)
+        GPIO.output(self.MOTOR_RIGHT_BACK, GPIO.LOW)
+        pwm_MOTOR_LEFT_PWM.ChangeDutyCycle(speed)
+        pwm_MOTOR_RIGHT_PWM.ChangeDutyCycle(speed)
+
+    def back_spin_right(self, speed=15):
+
+        GPIO.output(self.MOTOR_LEFT_FORWARD, GPIO.LOW)
+        GPIO.output(self.MOTOR_LEFT_BACK, GPIO.LOW)
+        GPIO.output(self.MOTOR_RIGHT_FORWARD, GPIO.LOW)
+        GPIO.output(self.MOTOR_RIGHT_BACK, GPIO.HIGH)
+        pwm_MOTOR_LEFT_PWM.ChangeDutyCycle(speed)
+        pwm_MOTOR_RIGHT_PWM.ChangeDutyCycle(speed)
 
     def steer(self, left_percent, right_percent):
         
@@ -265,14 +282,16 @@ class Yahboom():
 
         GPIO.setup(self.ULTRASONIC_ECHOPIN,GPIO.IN)
         GPIO.setup(self.ULTRASONIC_TRIGGERPIN,GPIO.OUT)
-   
+        GPIO.setup(self.INFRARED_LEFT,GPIO.IN)
+        GPIO.setup(self.INFRARED_RIGHT,GPIO.IN)
+    
     def UltraSonicSensor(self):
 
         GPIO.output(self.ULTRASONIC_TRIGGERPIN, GPIO.LOW)
-        print("Waiting for sensor to settle")
-        time.sleep(1)
+        #print("Waiting for sensor to settle")
+        time.sleep(.5)
 
-        print("Calculating distance")
+        #print("Calculating distance")
 
         # set trigger after 0.01ms from HIGH to LOW
         GPIO.output(self.ULTRASONIC_TRIGGERPIN, GPIO.HIGH)
@@ -291,11 +310,6 @@ class Yahboom():
         distance = (TimeElapsed * 34300) / 2
 
         return distance
-
-    def init_infrared_sensor(self):
-
-        GPIO.setup(self.INFRARED_LEFT,GPIO.IN)
-        GPIO.setup(self.INFRARED_RIGHT,GPIO.IN)
     
     def InfraredSensor(self):
 
