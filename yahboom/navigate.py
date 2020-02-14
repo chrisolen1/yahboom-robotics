@@ -19,7 +19,9 @@ for i in range(len(servos)):
     yb.stop_servo(servos[i])
     time.sleep(1)
 
-while True:
+start_time = time.time()
+
+while time.time() - start_time < 70:
 
     while yb.UltraSonicSensor() > 20 and yb.InfraredSensor()[0] == 1 and yb.InfraredSensor()[1] == 1:
 
@@ -31,7 +33,7 @@ while True:
     yb.back_spin_left()
     time.sleep(2)
 
-
+yb.stop()
 
 
 
