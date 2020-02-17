@@ -222,30 +222,35 @@ class Yahboom():
        else:
            print("invalid servo name")
 
-    def rotate_servo(self, servo, starting_angle, ending_angle):
+    def rotate_servo(self, servo, starting_angle, ending_angle, reverse=False):
 
-        assert starting_angle >= 60 and starting_angle <= 120, "starting angle must be between 60 and 120"
-        assert ending_angle >= 60 and ending_angle <= 120, "ending angle must be between 60 and 120"
+        assert starting_angle >= 45 and starting_angle <= 135, "starting angle must be between 45 and 135"
+        assert ending_angle >= 45 and ending_angle <= 135, "ending angle must be between 45 and 135"
 
-        seq = np.arange(starting_angle/12, ending_angle/12 + .1, .1)
+        if reverse==False:
+            seq = np.arange(starting_angle/12, ending_angle/12 + .5, .5)
+
+        else:
+            seq = np.arange(ending_angle/12, starting_angle/12 + .5, .5)
+            seq = seq[len(seq):None:-1]
         
         if servo=="CAMERA_SERVO_V":
             pwm_CAMERA_SERVO_V.start(starting_angle/12)
             for i in range(len(seq)):
                 pwm_CAMERA_SERVO_V.ChangeDutyCycle(seq[i])
-                time.sleep(.5)
+                time.sleep(.1)
             
         elif servo=="CAMERA_SERVO_H":
             pwm_CAMERA_SERVO_H.start(starting_angle/12)
             for i in range(len(seq)):
                 pwm_CAMERA_SERVO_H.ChangeDutyCycle(seq[i])
-                time.sleep(.5)
+                time.sleep(.1)
         
         elif servo=="FRONT_SERVO":
             pwm_FRONT_SERVO.start(starting_angle/12)
             for i in range(len(seq)):
                 pwm_FRONT_SERVO.ChangeDutyCycle(seq[i])
-                time.sleep(.5)
+                time.sleep(.1)
         
         else:
             print("invalid servo name")
@@ -289,7 +294,7 @@ class Yahboom():
 
         GPIO.output(self.ULTRASONIC_TRIGGERPIN, GPIO.LOW)
         #print("Waiting for sensor to settle")
-        time.sleep(.5)
+        time.sleep(.1)
 
         #print("Calculating distance")
 
