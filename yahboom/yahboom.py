@@ -259,7 +259,7 @@ class Yahboom():
             pwm_CAMERA_SERVO_H.start(8)
 
         elif servo=="FRONT_SERVO":
-            pwm_FRONT_SERVO.start(7.5)
+            pwm_FRONT_SERVO.start(8)
         
         else:
             print("invalid servo name")
