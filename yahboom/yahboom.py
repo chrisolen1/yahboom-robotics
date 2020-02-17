@@ -52,7 +52,6 @@ class Yahboom():
 
     def init_motor(self):
         
-        GPIO.cleanup()
         global pwm_MOTOR_LEFT_PWM
         global pwm_MOTOR_RIGHT_PWM
         
@@ -69,11 +68,11 @@ class Yahboom():
         pwm_MOTOR_LEFT_PWM.start(0)
         pwm_MOTOR_RIGHT_PWM.start(0)
 
-    def motor_reinit(self):
+    def reinit_motor(self):
         
         pwm_MOTOR_LEFT_PWM.stop()
         pwm_MOTOR_RIGHT_PWM.stop()
-        self.motor_init()
+        self.init_motor()
 
     def forward(self, speed=20):
         
