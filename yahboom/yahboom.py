@@ -156,7 +156,7 @@ class Yahboom():
         pwm_MOTOR_LEFT_PWM.ChangeDutyCycle(speed/3)
         pwm_MOTOR_RIGHT_PWM.ChangeDutyCycle(speed)
 
-    def back_spin_left(self, speed=15):
+    def back_spin_left(self, speed=25):
 
         GPIO.output(self.MOTOR_LEFT_FORWARD, GPIO.LOW)
         GPIO.output(self.MOTOR_LEFT_BACK, GPIO.HIGH)
@@ -165,7 +165,7 @@ class Yahboom():
         pwm_MOTOR_LEFT_PWM.ChangeDutyCycle(speed)
         pwm_MOTOR_RIGHT_PWM.ChangeDutyCycle(speed)
 
-    def back_spin_right(self, speed=15):
+    def back_spin_right(self, speed=25):
 
         GPIO.output(self.MOTOR_LEFT_FORWARD, GPIO.LOW)
         GPIO.output(self.MOTOR_LEFT_BACK, GPIO.LOW)
@@ -293,7 +293,7 @@ class Yahboom():
 
         GPIO.output(self.ULTRASONIC_TRIGGERPIN, GPIO.LOW)
         #print("Waiting for sensor to settle")
-        time.sleep(.1)
+        time.sleep(.001)
 
         #print("Calculating distance")
 
