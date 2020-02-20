@@ -355,7 +355,7 @@ class Yahboom():
             
         self.lastClkState = clkState
     
-    def drive_cm(self, dist, speed):
+    def drive_cm(self, dist, speed, direction="forward"):
 
         # number of degrees each wheel needs to turn
         wheelTurnDegrees = (dist/self.WHEEL_CIRCUMFERENCE) * 360
@@ -376,7 +376,21 @@ class Yahboom():
 
         while start:
         
-            self.forward(speed=speed)
+            if direction == "forward":
+                
+                self.forward(speed=speed)
+
+            elif direction == "backward":
+
+                self.backward(speed=speed)
+
+            elif direction == "left":
+
+                self.left(speed=speed)
+
+            else:
+
+                self.right(speed=speed)
 
             while ticksRemaining > 0:
                         
@@ -389,4 +403,33 @@ class Yahboom():
 
             self.stop()
             start = False
+
+    def orbit(self, degrees, radius_cm, direction, speed):
+        
+        assert degrees >= 0, "degrees must be positive"
+
+        # total distance to drive in cm
+        drive_distance = math.pi * 2 * abs(radius) * abs(degrees) / 360 
+
+        # the distance in cm to add to one motor and subtract from another
+        drive_difference = self.WHEEL_BASE_CIRCUMFERENCE * degrees / 360
+
+        # the number of degrees each wheel needs to turn on average to get the necessary distance
+        wheel_degrees_distance = drive_distance / self.WHEEL_CIRCUMFERENCE * 360
+
+        # the difference between motor travel in degrees
+        wheel_degrees_difference = drive_difference / self.WHEEL_CIRCUMFERENCE * 360
+        
+        if direction == "left":
+
+            # the distance each wheel needs to turn
+            left_target = wheel_degrees_distance + wheel_degrees_difference
+            right_target = wheel_degrees_distance - wheel_degrees_difference
+
+            right_speed = speed
+            left_speed = abs(right_speed * left_target / fast_target)
+
+        
+
+
 
