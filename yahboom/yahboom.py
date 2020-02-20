@@ -348,9 +348,12 @@ class Yahboom():
     
         if clkState != self.lastClkState:
             self.counter += 1
+            self.tick = True
+
+        else:
+            self.tick = False
             
         self.lastClkState = clkState
-        print(self.counter)
     
     def drive_cm(self, dist, speed):
 
@@ -359,7 +362,7 @@ class Yahboom():
         degreesPerTicks = 360 / self.ENCODER_TICKS_PER_ROTATION
         ticksToTravel = wheelTurnDegrees / degreesPerTicks
 
-        ticksRemaining = wheelTurnDegrees
+        ticksRemaining = ticksToTravel
 
         self.init_odometer()
         
@@ -372,19 +375,18 @@ class Yahboom():
         start = True
 
         while start:
-            
-            p1 = multiprocessing.Process(target = self.odometer)
-            p2 = multiprocessing.Process(target = self.forward, kwargs={"speed":speed})
-            
-            p1.start()
-            p2.start()
-            
-            while ticksRemaining:
+        
+            self.forward(speed=speed)
 
-                ticksRemaining -= self.counter
+            while ticksRemaining > 0:
+                        
+                self.odometer()
+                print("count is:", self.counter)
+                
+                if self.tick == True:
+                    ticksRemaining -= 1
+                print("ticks remaining:", ticksRemaining)
 
-            p2.stop()
-            p1.stop()
-
+            self.stop()
             start = False
 
