@@ -1,7 +1,10 @@
 import RPi.GPIO as GPIO
 import time
+
 import numpy as np
 import math
+
+import multiprocessing
 
 class Yahboom():
 
@@ -16,8 +19,10 @@ class Yahboom():
             CAMERA_SERVO_H = 25,
             CAMERA_SERVO_V = 9,
             DEFAULT_FREQ = 1000,
+            ODOMETER = 10,
+            ENCODER_TICKS_PER_ROTATION = 6,
             WHEEL_DIAMETER = 6.65,
-            WHEEL_BASE_WIDTH = 16,
+            WHEEL_BASE_WIDTH = 14,
             ULTRASONIC_ECHOPIN = 0,
             ULTRASONIC_TRIGGERPIN = 1,
             INFRARED_LEFT = 12,
@@ -39,11 +44,15 @@ class Yahboom():
         
         self.DEFAULT_FREQ = DEFAULT_FREQ
         
+        self.ODOMETER = ODOMETER
         self.WHEEL_DIAMETER = WHEEL_DIAMETER # in cm
         self.WHEEL_CIRCUMFERENCE = self.WHEEL_DIAMETER * math.pi
         self.WHEEL_BASE_WIDTH = WHEEL_BASE_WIDTH # in cm
         self.WHEEL_BASE_CIRCUMFERENCE = self.WHEEL_BASE_WIDTH * math.pi
-    
+        self.ENCODER_TICKS_PER_ROTATION = ENCODER_TICKS_PER_ROTATION # number of magnet positions
+        #self.MOTOR_GEAR_RATIO = 120 # Motor gear ratio # 220 for Nicole's prototype
+        #MOTOR_TICKS_PER_DEGREE = ((MOTOR_GEAR_RATIO * ENCODER_TICKS_PER_ROTATION) / 360.0) # encoder ticks per output shaft rotation degree
+
         self.ULTRASONIC_ECHOPIN = ULTRASONIC_ECHOPIN
         self.ULTRASONIC_TRIGGERPIN = ULTRASONIC_TRIGGERPIN
 
@@ -321,3 +330,61 @@ class Yahboom():
         RightSensorValue = GPIO.input(self.INFRARED_RIGHT)
 
         return LeftSensorValue, RightSensorValue
+
+    def init_odometer(self):
+
+        GPIO.setup(self.ODOMETER, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        self.odometer(reset_odometer=True)
+    
+    def odometer(self, reset_odometer=False):
+    
+        if reset_odometer == True:
+            
+            self.lastClkState = GPIO.input(self.ODOMETER)
+            self.counter = 0
+    
+
+        clkState = GPIO.input(self.ODOMETER)
+    
+        if clkState != self.lastClkState:
+            self.counter += 1
+            
+        self.lastClkState = clkState
+        print(self.counter)
+    
+    def drive_cm(self, dist, speed):
+
+        # number of degrees each wheel needs to turn
+        wheelTurnDegrees = (dist/self.WHEEL_CIRCUMFERENCE) * 360
+        degreesPerTicks = 360 / self.ENCODER_TICKS_PER_ROTATION
+        ticksToTravel = wheelTurnDegrees / degreesPerTicks
+
+        ticksRemaining = wheelTurnDegrees
+
+        self.init_odometer()
+        
+        try:
+            self.init_motor()
+        
+        except:
+            self.reinit_motor()
+
+        start = True
+
+        while start:
+            
+            p1 = multiprocessing.Process(target = self.odometer)
+            p2 = multiprocessing.Process(target = self.forward, kwargs={"speed":speed})
+            
+            p1.start()
+            p2.start()
+            
+            while ticksRemaining:
+
+                ticksRemaining -= self.counter
+
+            p2.stop()
+            p1.stop()
+
+            start = False
+

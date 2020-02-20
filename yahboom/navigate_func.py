@@ -5,7 +5,7 @@ import scan_func
 
 
     
-p1 = multiprocessing.Process(target=wander_func.wander, kwargs={'day_mode':True})
+p1 = multiprocessing.Process(target=wander_func.wander)#, kwargs={'day_mode':True})
 p2 = multiprocessing.Process(target=scan_func.scan)
 
 p1.start()

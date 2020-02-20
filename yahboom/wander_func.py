@@ -16,7 +16,7 @@ def wander(day_mode=False):
             
                 yb.reinit_motor()
                 yb.forward(speed=15)
-                time.sleep(1)
+                time.sleep(.01)
 
             yb.stop()
             yb.backward(speed=10)
@@ -30,7 +30,7 @@ def wander(day_mode=False):
 
                 yb.reinit_motor()
                 yb.forward(speed=15)
-                time.sleep(1)
+                time.sleep(.01)
 
             yb.stop()
             yb.backward(speed=10)
