@@ -89,7 +89,7 @@ class Yahboom():
         GPIO.output(self.MOTOR_LEFT_BACK, GPIO.LOW)
         GPIO.output(self.MOTOR_RIGHT_FORWARD, GPIO.HIGH)
         GPIO.output(self.MOTOR_RIGHT_BACK, GPIO.LOW)
-        pwm_MOTOR_LEFT_PWM.ChangeDutyCycle(speed)
+        pwm_MOTOR_LEFT_PWM.ChangeDutyCycle(speed+3) # correcting for power imbalance
         pwm_MOTOR_RIGHT_PWM.ChangeDutyCycle(speed)
 
     def backward(self, speed=20):
@@ -98,10 +98,10 @@ class Yahboom():
         GPIO.output(self.MOTOR_LEFT_BACK, GPIO.HIGH)
         GPIO.output(self.MOTOR_RIGHT_FORWARD, GPIO.LOW)
         GPIO.output(self.MOTOR_RIGHT_BACK, GPIO.HIGH)
-        pwm_MOTOR_LEFT_PWM.ChangeDutyCycle(speed)
+        pwm_MOTOR_LEFT_PWM.ChangeDutyCycle(speed+3) # correcting for power imbalance
         pwm_MOTOR_RIGHT_PWM.ChangeDutyCycle(speed)
 
-    def right(self, speed=20):
+    def right(self, left_speed=20, right_speed=20/3):
         
         """
         General function for turning right.
@@ -112,10 +112,10 @@ class Yahboom():
         GPIO.output(self.MOTOR_LEFT_BACK, GPIO.LOW)
         GPIO.output(self.MOTOR_RIGHT_FORWARD, GPIO.HIGH)
         GPIO.output(self.MOTOR_RIGHT_BACK, GPIO.LOW)
-        pwm_MOTOR_LEFT_PWM.ChangeDutyCycle(speed)
-        pwm_MOTOR_RIGHT_PWM.ChangeDutyCycle(speed/3)
+        pwm_MOTOR_LEFT_PWM.ChangeDutyCycle(left_speed) # correcting for power imbalance
+        pwm_MOTOR_RIGHT_PWM.ChangeDutyCycle(right_speed)
 
-    def left(self, speed=20):
+    def left(self, left_speed=20/3, right_speed=20):
         
         """
         General function for turning left. 
@@ -126,8 +126,8 @@ class Yahboom():
         GPIO.output(self.MOTOR_LEFT_BACK, GPIO.LOW)
         GPIO.output(self.MOTOR_RIGHT_FORWARD, GPIO.HIGH)
         GPIO.output(self.MOTOR_RIGHT_BACK, GPIO.LOW)
-        pwm_MOTOR_LEFT_PWM.ChangeDutyCycle(speed/3)
-        pwm_MOTOR_RIGHT_PWM.ChangeDutyCycle(speed)
+        pwm_MOTOR_LEFT_PWM.ChangeDutyCycle(left_speed) # correcting for power imbalance
+        pwm_MOTOR_RIGHT_PWM.ChangeDutyCycle(right_speed)
     
     def spin_right(self, speed=20):
 
@@ -153,7 +153,7 @@ class Yahboom():
         GPIO.output(self.MOTOR_LEFT_BACK, GPIO.HIGH)
         GPIO.output(self.MOTOR_RIGHT_FORWARD, GPIO.LOW)
         GPIO.output(self.MOTOR_RIGHT_BACK, GPIO.HIGH)
-        pwm_MOTOR_LEFT_PWM.ChangeDutyCycle(speed)
+        pwm_MOTOR_LEFT_PWM.ChangeDutyCycle(speed+3) # correcting for power imbalance
         pwm_MOTOR_RIGHT_PWM.ChangeDutyCycle(speed/3)
     
     def back_right(self, speed=15):
@@ -162,7 +162,7 @@ class Yahboom():
         GPIO.output(self.MOTOR_LEFT_BACK, GPIO.HIGH)
         GPIO.output(self.MOTOR_RIGHT_FORWARD, GPIO.LOW)
         GPIO.output(self.MOTOR_RIGHT_BACK, GPIO.HIGH)
-        pwm_MOTOR_LEFT_PWM.ChangeDutyCycle(speed/3)
+        pwm_MOTOR_LEFT_PWM.ChangeDutyCycle((speed/3)+3) # correcting for power imbalance
         pwm_MOTOR_RIGHT_PWM.ChangeDutyCycle(speed)
 
     def back_spin_left(self, speed=25):
@@ -377,19 +377,15 @@ class Yahboom():
         while start:
         
             if direction == "forward":
-                
                 self.forward(speed=speed)
 
             elif direction == "backward":
-
                 self.backward(speed=speed)
 
             elif direction == "left":
-
                 self.left(speed=speed)
 
             else:
-
                 self.right(speed=speed)
 
             while ticksRemaining > 0:
@@ -399,6 +395,7 @@ class Yahboom():
                 
                 if self.tick == True:
                     ticksRemaining -= 1
+                
                 print("ticks remaining:", ticksRemaining)
 
             self.stop()
@@ -409,27 +406,75 @@ class Yahboom():
         assert degrees >= 0, "degrees must be positive"
 
         # total distance to drive in cm
-        drive_distance = math.pi * 2 * abs(radius) * abs(degrees) / 360 
+        inner_drive_distance = math.pi * 2 * radius_cm * degrees / 360
+        outer_drive_distance = math.pi * 2 * (radius_cm + self.WHEEL_BASE_WIDTH) * degrees /360
+        # degrees each wheel has to turn
+        inner_degrees = inner_drive_distance / self.WHEEL_CIRCUMFERENCE * 360
+        outer_degrees = outer_drive_distance / self.WHEEL_CIRCUMFERENCE * 360
 
-        # the distance in cm to add to one motor and subtract from another
-        drive_difference = self.WHEEL_BASE_CIRCUMFERENCE * degrees / 360
-
-        # the number of degrees each wheel needs to turn on average to get the necessary distance
-        wheel_degrees_distance = drive_distance / self.WHEEL_CIRCUMFERENCE * 360
-
-        # the difference between motor travel in degrees
-        wheel_degrees_difference = drive_difference / self.WHEEL_CIRCUMFERENCE * 360
-        
         if direction == "left":
 
-            # the distance each wheel needs to turn
-            left_target = wheel_degrees_distance + wheel_degrees_difference
-            right_target = wheel_degrees_distance - wheel_degrees_difference
+            # so, left is inner and right is outer
+            right_speed = self.pwm_to_cms(speed) # convert from pwm to cm/s
+            left_speed = inner_drive_distance * right_speed / outer_drive_distance / 2
 
-            right_speed = speed
-            left_speed = abs(right_speed * left_target / fast_target)
+        else:
 
+            # so, right is inner and left is outer
+            left_speed = self.pwm_to_cms(speed)
+            right_speed = inner_drive_distance * left_speed / outer_drive_distance / 3
+
+
+        degreesPerTicks = 360 / self.ENCODER_TICKS_PER_ROTATION
         
+        # rotary encoder is on left wheel, so have to choose inner_degrees, outer_degrees accordingly
+        if direction == "left":
+            ticksToTravel = inner_degrees / degreesPerTicks # since the encoder will be on the inner
 
+        else:
+            ticksToTravel = outer_degrees / degreesPerTicks # since the encoder will be on the outer
+        
+        ticksRemaining = ticksToTravel
 
+        self.init_odometer()
+        
+        try:
+            self.init_motor()
+        
+        except:
+            self.reinit_motor()
 
+        start = True
+
+        while start:
+        
+            if direction == "left":
+                self.left(left_speed=left_speed, right_speed=right_speed)
+
+            else:
+                self.right(left_speed=left_speed, right_speed=right_speed)
+
+            while ticksRemaining > 0:
+                        
+                self.odometer()
+                print("count is:", self.counter)
+                
+                if self.tick == True:
+                    ticksRemaining -= 1
+                
+                print("ticks remaining:", ticksRemaining)
+
+            self.stop()
+            start = False
+
+    def pwm_to_cms(self, pwm):
+
+        # coefficients of fit exp curve
+        a = -77.50414018313563
+        b = 11.856787257598077
+        c = 0.016664634500959574
+        d = 97.55455402950095
+        
+        # output cm/s
+        cms = a*np.exp(-c*(pwm-b))+d
+        return cms
